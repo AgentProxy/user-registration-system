@@ -8,8 +8,9 @@ import axios from "axios";
 
 Vue.config.productionTip = false;
 
-//Set
-axios.defaults.baseURL = "https://baseplate-api.appetiserdev.tech/api/v1 ";
+//Set base url for use globally
+axios.defaults.baseURL = "https://baseplate-api.appetiserdev.tech/api/v1";
+// axios.defaults.baseURL = "https://baseplate-api.appetiserdev.tech/api/v1";
 
 new Vue({
   router,

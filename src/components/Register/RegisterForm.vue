@@ -98,7 +98,8 @@ export default {
           (v) =>
             (this.password &&
               this.password.length &&
-              v.length === this.password.length) ||
+              v.length === this.password.length &&
+              this.password === v) ||
             "Passwords do not match",
         ],
       },
@@ -111,24 +112,40 @@ export default {
         // Toggle loading before sending data to endpoint
         this.isSubmittingForm = true;
         // "https://api.baseplate.appetiserdev.tech/api/v1/auth/register",
-        axios
-          .post(
-            "https://api.baseplate.appetiserdev.tech/api/v1/auth/register",
-            {
-              full_name: this.full_name,
-              email: this.email,
-              password: this.password,
-              password_confirmation: this.password_confirmation,
-            }
-          )
+        // axios
+        //   .post(
+        //     "https://api.baseplate.appetiserdev.tech/api/v1/auth/register",
+        //     {
+        //       full_name: this.full_name,
+        //       email: this.email,
+        //       password: this.password,
+        //       password_confirmation: this.password_confirmation,
+        //     }
+        //   )
+        axios({
+          method: "POST",
+          url: "/auth/register",
+          data: {
+            full_name: this.full_name,
+            email: this.email,
+            password: this.password,
+            password_confirmation: this.password_confirmation,
+          },
+        })
           .then((response) => {
             console.log(response.data);
+            // Save access token to local storage
+            localStorage.setItem("access-token", response.data.token);
+            // Display success message and redirect to verification page
             this.$store.dispatch("alert/displaySuccessAlert", {
               body: "Your registration has been successfully completed. You have just been sent an email containing the verification code.",
             });
             this.$router.push("/verify");
           })
           .catch((err) => {
+            // Remove any possible access-token entry
+            localStorage.removeItem("access-token");
+            // Display error message
             this.$store.dispatch("alert/displayErrorAlert", {
               body:
                 (err.response &&
