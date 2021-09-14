@@ -4,7 +4,12 @@ import router from "./router";
 import store from "./store";
 import vuetify from "./plugins/vuetify";
 
+import axios from "axios";
+
 Vue.config.productionTip = false;
+
+//Set
+axios.defaults.baseURL = "https://baseplate-api.appetiserdev.tech/api/v1 ";
 
 new Vue({
   router,

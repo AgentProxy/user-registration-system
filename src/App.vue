@@ -34,17 +34,18 @@
     </v-app-bar>
 
     <v-main>
+      <AlertBox />
       <router-view />
     </v-main>
   </v-app>
 </template>
 
 <script>
+import AlertBox from "./components/AlertBox.vue";
 export default {
   name: "App",
-
-  data: () => ({
-    //
-  }),
+  components: {
+    AlertBox,
+  },
 };
 </script>
