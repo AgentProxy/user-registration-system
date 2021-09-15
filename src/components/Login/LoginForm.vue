@@ -67,11 +67,14 @@ export default {
       if (this.isValidForm && !this.isLoggingIn) {
         // Toggle loading before sending data to endpoint
         this.isLoggingIn = true;
-        axios
-          .post("/auth/login", {
+        axios({
+          url: "/auth/login",
+          method: "POST",
+          body: {
             username: this.email,
             password: this.password,
-          })
+          },
+        })
           .then((response) => {
             if (response.data) {
               // Save access token to local storage

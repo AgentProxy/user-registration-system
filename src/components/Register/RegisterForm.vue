@@ -111,20 +111,13 @@ export default {
       if (this.isValidForm && !this.isSubmittingForm) {
         // Toggle loading before sending data to endpoint
         this.isSubmittingForm = true;
-        // "https://api.baseplate.appetiserdev.tech/api/v1/auth/register",
-        // axios
-        //   .post(
-        //     "https://api.baseplate.appetiserdev.tech/api/v1/auth/register",
-        //     {
-        //       full_name: this.full_name,
-        //       email: this.email,
-        //       password: this.password,
-        //       password_confirmation: this.password_confirmation,
-        //     }
-        //   )
         axios({
-          method: "POST",
           url: "/auth/register",
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
           data: {
             full_name: this.full_name,
             email: this.email,
