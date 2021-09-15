@@ -18,7 +18,7 @@
           Hi {{ (userDetails && userDetails.full_name) || "User" }}, thank you
           for using the app!
         </p>
-        <DeleteProfileButton />
+        <DeleteAccountButton />
       </v-col>
     </v-row>
   </v-container>
@@ -26,11 +26,11 @@
 
 <script>
 import { mapState } from "vuex";
-import DeleteProfileButton from "./DeleteProfileButton.vue";
+import DeleteAccountButton from "./DeleteAccountButton.vue";
 export default {
   name: "HomeContent",
   components: {
-    DeleteProfileButton,
+    DeleteAccountButton,
   },
   computed: {
     ...mapState("profile", ["userDetails"]),

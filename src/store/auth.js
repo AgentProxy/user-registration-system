@@ -125,7 +125,7 @@ const actions = {
   logout({ state, commit, dispatch }) {
     // If token is available previously, logout the user by calling the logout
     // endpoint and removing user details and token. Else, redirect to login page directly
-    if (state.token) {
+    if (state.token || localStorage.getItem("token")) {
       axios
         .post("/auth/logout", null, {
           headers: {

@@ -18,6 +18,66 @@ const mutations = {
 };
 
 const actions = {
+  deleteAccount({ dispatch }, password) {
+    // Will retrieve verification token first which is needed for the
+    // delete account endpoint
+    axios
+      .post(
+        "/auth/account/verification-token",
+        { password },
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        // Proceed if verification token is available from the response
+        if (response.data && response.data.data && response.data.data.token) {
+          return axios
+            .post(
+              "/auth/account",
+              {
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                  "Verification-Token": response.data.data.token,
+                },
+              },
+              null
+            )
+            .catch(() => {
+              // Will trigger parent catch block
+              throw new Error();
+            });
+        } else {
+          // Will trigger catch block to display error message
+          throw new Error();
+        }
+      })
+      .then(() => {
+        // Remove user token manually, no need to call logout endpoint
+        dispatch("auth/removeUserToken", null, { root: true });
+        // Redirect user back to login page
+        router.push("/login");
+      })
+      .catch((err) => {
+        // Display error message
+        dispatch(
+          "alert/displayErrorAlert",
+          {
+            body:
+              (err.response &&
+                err.response.data &&
+                err.response.data.message) ||
+              err.message ||
+              "Unable to delete user account. Please try again.",
+          },
+          { root: true }
+        );
+      });
+  },
   getUserDetails({ commit, dispatch }, toRouteName) {
     // To toggle page loading while retrieving data
     commit("SET_LOADING", true);
