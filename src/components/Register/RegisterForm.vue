@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import axios from "axios";
+// import axios from "axios";
 export default {
   name: "RegistrationForm",
   data() {
@@ -111,45 +111,14 @@ export default {
       if (this.isValidForm && !this.isSubmittingForm) {
         // Toggle loading before sending data to endpoint
         this.isSubmittingForm = true;
-        axios({
-          url: "/auth/register",
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          data: {
-            full_name: this.full_name,
+        this.$store
+          .dispatch("auth/register", {
             email: this.email,
+            full_name: this.full_name,
             password: this.password,
             password_confirmation: this.password_confirmation,
-          },
-        })
-          .then((response) => {
-            console.log(response.data);
-            // Save access token to local storage
-            localStorage.setItem("access-token", response.data.token);
-            // Display success message and redirect to verification page
-            this.$store.dispatch("alert/displaySuccessAlert", {
-              body: "Your registration has been successfully completed. You have just been sent an email containing the verification code.",
-            });
-            this.$router.push("/verify");
-          })
-          .catch((err) => {
-            // Remove any possible access-token entry
-            localStorage.removeItem("access-token");
-            // Display error message
-            this.$store.dispatch("alert/displayErrorAlert", {
-              body:
-                (err.response &&
-                  err.response.data &&
-                  err.response.data.message) ||
-                "Unable to register",
-            });
           })
           .then(() => {
-            // Set the `isSubmittingForm` to false to stop the submit button from
-            // showing the loading state and being disabled
             this.isSubmittingForm = false;
           });
       }

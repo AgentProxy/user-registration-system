@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import axios from "axios";
+// import axios from "axios";
 export default {
   name: "LoginForm",
   data() {
@@ -63,49 +63,14 @@ export default {
   },
   methods: {
     login() {
-      // Only proceed to sending data to endpoint if all form fields are valid
       if (this.isValidForm && !this.isLoggingIn) {
-        // Toggle loading before sending data to endpoint
         this.isLoggingIn = true;
-        axios({
-          url: "/auth/login",
-          method: "POST",
-          body: {
-            username: this.email,
+        this.$store
+          .dispatch("auth/login", {
+            email: this.email,
             password: this.password,
-          },
-        })
-          .then((response) => {
-            if (response.data) {
-              // Save access token to local storage
-              localStorage.setItem("access-token", response.data.token);
-              // Proceed to success page if email has been verified
-              if (response.data.email_verified) {
-                this.$router.push("/");
-              } else if (!response.data.email_verified) {
-                // Proceed to verification page if email has not been verified
-                this.$router.push("/verify");
-              }
-            } else {
-              // Proceed to catch block if response.data is not available
-              throw new Error();
-            }
-          })
-          .catch((err) => {
-            // Remove any possible access-token entry
-            localStorage.removeItem("access-token");
-            // Display error message
-            this.$store.dispatch("alert/displayErrorAlert", {
-              body:
-                (err.response &&
-                  err.response.data &&
-                  err.response.data.message) ||
-                "Unable to login",
-            });
           })
           .then(() => {
-            // Set the `isLoggingIn` to false to stop the submit button from
-            // showing the loading state and being disabled
             this.isLoggingIn = false;
           });
       }
