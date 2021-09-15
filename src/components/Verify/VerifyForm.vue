@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-form @submit.prevent="login" ref="loginForm" v-model="isValidForm">
+    <v-form @submit.prevent="verify" ref="loginForm" v-model="isValidForm">
       <!-- Email field with validation -->
       <v-text-field
         autofocus
@@ -40,23 +40,25 @@ export default {
     };
   },
   methods: {
-    login() {
+    verify() {
       // Only proceed to sending data to endpoint if all form fields are valid
       if (this.isValidForm && !this.isVerifying) {
         // Toggle loading before sending data to endpoint
         this.isVerifying = true;
-        axios({
-          url: "/auth/verification/verify",
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: {
-            token: "12345",
-            via: "email",
-          },
-        })
+        axios
+          .post(
+            "/auth/verification/verify",
+            {
+              token: "12345",
+              via: "email",
+            },
+            {
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+            }
+          )
           .then((response) => {
             if (response.data && response.data.email_verified) {
               // Display success message and redirect to verification page

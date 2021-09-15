@@ -1,28 +1,90 @@
 import axios from "axios";
 import router from "../router";
 
+const state = () => {
+  return {
+    token: null,
+    userDetails: null,
+  };
+};
+
+const mutations = {
+  SET_TOKEN(state, token) {
+    state.token = token;
+  },
+  SET_USER_DETAILS(state, userDetails) {
+    state.userDetails = userDetails;
+  },
+};
+
+const getters = {
+  isLoggedIn(state) {
+    return !!state.token;
+  },
+};
+
 const actions = {
-  login({ dispatch }, userDetails) {
-    return axios({
-      url: "/auth/login",
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      data: {
-        username: userDetails.email,
-        password: userDetails.password,
-      },
-    })
+  getUserDetails({ commit, dispatch }) {
+    // Get authenticated user details
+    // Added verification if user is still authenticated
+    return axios
+      .get("/auth/me", {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
       .then((response) => {
-        if (response.data) {
-          // Save access token to local storage
-          localStorage.setItem("access-token", response.data.token);
+        if (response.data.data) {
+          const responseData = response.data.data;
+          commit("SET_USER_DETAILS", {
+            full_name: responseData.full_name || "",
+            email: responseData.email || "",
+            avatar: responseData.avatar || "",
+          });
+        }
+      })
+      .catch((err) => {
+        // Display error message
+        dispatch(
+          "alert/displayErrorAlert",
+          {
+            body:
+              (err.response &&
+                err.response.data &&
+                err.response.data.message) ||
+              "Unable to register",
+          },
+          { root: true }
+        );
+        // Logout user
+        dispatch("logout");
+      });
+  },
+  login({ dispatch }, userDetails) {
+    return axios
+      .post(
+        "/auth/login",
+        {
+          username: userDetails.email,
+          password: userDetails.password,
+        },
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        if (response.data && response.data.data) {
+          const responseData = response.data.data;
+          // Save access token to be used for requests
+          dispatch("saveUserToken", responseData.access_token);
           // Proceed to success page if email has been verified
-          if (response.data.email_verified) {
+          if (responseData.email_verified) {
             router.push("/");
-          } else if (!response.data.email_verified) {
+          } else if (!responseData.email_verified) {
             // Proceed to verification page if email has not been verified
             router.push("/verify");
           }
@@ -32,8 +94,8 @@ const actions = {
         }
       })
       .catch((err) => {
-        // Remove any possible access-token entry
-        localStorage.removeItem("access-token");
+        // Remove any possible token entries
+        dispatch("removeUserToken");
         // Display error message
         dispatch(
           "alert/displayErrorAlert",
@@ -49,23 +111,26 @@ const actions = {
       });
   },
   register({ dispatch }, userDetails) {
-    return axios({
-      url: "/auth/register",
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      data: {
-        email: userDetails.email,
-        full_name: userDetails.full_name,
-        password: userDetails.password,
-        password_confirmation: userDetails.password_confirmation,
-      },
-    })
+    return axios
+      .post(
+        "/auth/register",
+        {
+          email: userDetails.email,
+          full_name: userDetails.full_name,
+          password: userDetails.password,
+          password_confirmation: userDetails.password_confirmation,
+        },
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      )
       .then((response) => {
-        // Save access token to local storage
-        localStorage.setItem("access-token", response.data.token);
+        console.log(response.data);
+        // Save access token to be used for requests
+        dispatch("saveUserToken", response.data.access_token);
         // Display success message and redirect to verification page
         dispatch(
           "alert/displaySuccessAlert",
@@ -78,8 +143,8 @@ const actions = {
         router.push("/verify");
       })
       .catch((err) => {
-        // Remove any possible access-token entry
-        localStorage.removeItem("access-token");
+        // Remove any possible token entries
+        dispatch("removeUserToken");
         // Display error message
         dispatch(
           "alert/displayErrorAlert",
@@ -94,8 +159,51 @@ const actions = {
         );
       });
   },
-  logout() {
-    router.push("/login");
+  logout({ state, dispatch }) {
+    if (state.token) {
+      axios
+        .post("/auth/logout", null, {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        })
+        .then(() => {
+          dispatch("removeUserToken");
+        })
+        .catch((err) => {
+          // Display error message
+          dispatch(
+            "alert/displayErrorAlert",
+            {
+              body:
+                (err.response &&
+                  err.response.data &&
+                  err.response.data.message) ||
+                "Unable to register",
+            },
+            { root: true }
+          );
+        })
+        .then(() => {
+          router.push("/login");
+        });
+    } else {
+      router.push("/login");
+    }
+  },
+  removeUserToken({ commit }) {
+    commit("SET_TOKEN", null);
+    localStorage.removeItem("token");
+    // Remove the Authorization token from the axios default header
+    delete axios.defaults.headers.common["Authorization"];
+  },
+  saveUserToken({ commit }, token) {
+    token = "Bearer " + token;
+    commit("SET_TOKEN", token);
+    localStorage.setItem("token", token);
+    // Save to default header of axios to be used for requests
+    axios.defaults.headers.common["Authorization"] = token;
   },
 };
 
@@ -104,6 +212,9 @@ export default {
   auth: {
     // Set modules to namespaced equals true by default
     namespaced: true,
+    state,
+    getters,
     actions,
+    mutations,
   },
 };

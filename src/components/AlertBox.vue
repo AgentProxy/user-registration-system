@@ -1,10 +1,11 @@
 <template>
   <v-alert
+    @input="toggleAlert"
     id="alert-box"
-    v-model="showAlert"
     :type="message.type"
     elevation="5"
     dismissible
+    :value="showAlert"
   >
     <div class="text-h6 mt-0">{{ message.title }}</div>
     <div class="text-subtitle-1">{{ message.body }}</div>
@@ -14,16 +15,38 @@
 <script>
 import { mapState } from "vuex";
 export default {
+  data() {
+    return {
+      timer: null,
+    };
+  },
+  props: {
+    // Default timeout to auto-close is 3 seconds
+    timeout: {
+      type: Number,
+      default: 3000,
+    },
+  },
+  watch: {
+    showAlert(oldValue, newValue) {
+      // Start auto close feature once alert box was shown
+      if (oldValue && !newValue) {
+        this.timer = setTimeout(() => {
+          this.toggleAlert();
+        }, this.timeout);
+      }
+    },
+  },
   computed: {
     ...mapState("alert", ["message", "showAlert"]),
-    // Toggles the display status of the alert box
-    showAlert: {
-      get() {
-        return this.$store.state.alert.showAlert;
-      },
-      set(alertState) {
-        this.$store.commit("alert/SHOW_ALERT", alertState);
-      },
+  },
+  methods: {
+    toggleAlert() {
+      // Clear the timeout on close
+      if (this.showAlert && this.timer) {
+        clearTimeout(this.timer);
+      }
+      this.$store.commit("alert/SHOW_ALERT", !this.showAlert);
     },
   },
 };

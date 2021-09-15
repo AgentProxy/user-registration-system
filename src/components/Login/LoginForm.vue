@@ -21,6 +21,7 @@
         :type="showPassword ? 'text' : 'password'"
         outlined
         required
+        autocomplete
         @click:append="showPassword = !showPassword"
       />
       <!-- Disable the submit button if form is not valid or submitting -->

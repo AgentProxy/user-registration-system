@@ -8,9 +8,13 @@ import axios from "axios";
 
 Vue.config.productionTip = false;
 
+const token = localStorage.getItem("token");
+if (token) {
+  axios.defaults.headers.common["Authorization"] = token;
+}
+
 //Set base url for use globally
 axios.defaults.baseURL = "https://baseplate-api.appetiserdev.tech/api/v1";
-// axios.defaults.baseURL = "https://baseplate-api.appetiserdev.tech/api/v1";
 
 new Vue({
   router,
