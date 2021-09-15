@@ -7,8 +7,9 @@ import vuetify from "./plugins/vuetify";
 import axios from "axios";
 
 Vue.config.productionTip = false;
-
+// Check if there was a previous token saved
 const token = localStorage.getItem("token");
+// Save previous token to header for succeeding requests
 if (token) {
   axios.defaults.headers.common["Authorization"] = token;
 }

@@ -27,7 +27,7 @@ import { mapState } from "vuex";
 export default {
   name: "HomeContent",
   computed: {
-    ...mapState("auth", ["userDetails"]),
+    ...mapState("profile", ["userDetails"]),
   },
 };
 </script>

@@ -4,16 +4,12 @@ import router from "../router";
 const state = () => {
   return {
     token: null,
-    userDetails: null,
   };
 };
 
 const mutations = {
   SET_TOKEN(state, token) {
     state.token = token;
-  },
-  SET_USER_DETAILS(state, userDetails) {
-    state.userDetails = userDetails;
   },
 };
 
@@ -24,43 +20,6 @@ const getters = {
 };
 
 const actions = {
-  getUserDetails({ commit, dispatch }) {
-    // Get authenticated user details
-    // Added verification if user is still authenticated
-    return axios
-      .get("/auth/me", {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      })
-      .then((response) => {
-        if (response.data.data) {
-          const responseData = response.data.data;
-          commit("SET_USER_DETAILS", {
-            full_name: responseData.full_name || "",
-            email: responseData.email || "",
-            avatar: responseData.avatar || "",
-          });
-        }
-      })
-      .catch((err) => {
-        // Display error message
-        dispatch(
-          "alert/displayErrorAlert",
-          {
-            body:
-              (err.response &&
-                err.response.data &&
-                err.response.data.message) ||
-              "Unable to register",
-          },
-          { root: true }
-        );
-        // Logout user
-        dispatch("logout");
-      });
-  },
   login({ dispatch }, userDetails) {
     return axios
       .post(
@@ -128,19 +87,23 @@ const actions = {
         }
       )
       .then((response) => {
-        console.log(response.data);
-        // Save access token to be used for requests
-        dispatch("saveUserToken", response.data.access_token);
-        // Display success message and redirect to verification page
-        dispatch(
-          "alert/displaySuccessAlert",
-          {
-            body: "Your registration has been successfully completed. You have just been sent an email containing the verification code.",
-          },
-          { root: true }
-        );
-        // Redirect to verification page
-        router.push("/verify");
+        if (response.data && response.data.data) {
+          const responseData = response.data.data;
+          // Save access token to be used for requests
+          dispatch("saveUserToken", responseData);
+          // Display success message and redirect to verification page
+          dispatch(
+            "alert/displaySuccessAlert",
+            {
+              body: "Your registration has been successfully completed. You have just been sent an email containing the verification code.",
+            },
+            { root: true }
+          );
+          // Redirect to verification page
+          router.push("/verify");
+        } else {
+          throw new Error();
+        }
       })
       .catch((err) => {
         // Remove any possible token entries
@@ -159,7 +122,9 @@ const actions = {
         );
       });
   },
-  logout({ state, dispatch }) {
+  logout({ state, commit, dispatch }) {
+    // If token is available previously, logout the user by calling the logout
+    // endpoint and removing user details and token. Else, redirect to login page directly
     if (state.token) {
       axios
         .post("/auth/logout", null, {
@@ -169,7 +134,12 @@ const actions = {
           },
         })
         .then(() => {
+          // Clear user details
+          commit("profile/SET_USER_DETAILS", null, { root: true });
+          // Clear and remove user token from header
           dispatch("removeUserToken");
+          // Redirect user back to login page
+          router.push("/login");
         })
         .catch((err) => {
           // Display error message
@@ -180,13 +150,10 @@ const actions = {
                 (err.response &&
                   err.response.data &&
                   err.response.data.message) ||
-                "Unable to register",
+                "An error occured while logging out",
             },
             { root: true }
           );
-        })
-        .then(() => {
-          router.push("/login");
         });
     } else {
       router.push("/login");

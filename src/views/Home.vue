@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import PageLoader from "../components/PageLoader.vue";
 import HomeContent from "../components/Home/HomeContent";
 
@@ -17,17 +18,8 @@ export default {
     PageLoader,
   },
 
-  data() {
-    return {
-      isLoading: false,
-    };
-  },
-
-  created() {
-    this.isLoading = true;
-    this.$store.dispatch("auth/getUserDetails").then(() => {
-      this.isLoading = false;
-    });
+  computed: {
+    ...mapState("profile", ["isLoading"]),
   },
 };
 </script>
