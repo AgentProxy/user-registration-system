@@ -104,11 +104,17 @@ const actions = {
       })
       .catch((err) => {
         // Display error message
-        this.$store.dispatch("alert/displayErrorAlert", {
-          body:
-            (err.response && err.response.data && err.response.data.message) ||
-            "Unable to verify account. Please try again.",
-        });
+        dispatch(
+          "alert/displayErrorAlert",
+          {
+            body:
+              (err.response &&
+                err.response.data &&
+                err.response.data.message) ||
+              "Unable to verify account. Please try again.",
+          },
+          { root: true }
+        );
       })
       .then(() => {
         commit("SET_LOADING", false);

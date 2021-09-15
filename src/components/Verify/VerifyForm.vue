@@ -1,28 +1,43 @@
 <template>
-  <div>
-    <v-form @submit.prevent="verify" ref="loginForm" v-model="isValidForm">
-      <!-- Email field with validation -->
-      <v-text-field
-        autofocus
-        name="token"
-        v-model="token"
-        :rules="rules.token"
-        label="Token"
-        outlined
-        required
-      />
-      <!-- Disable the submit button if form is not valid or submitting -->
-      <v-btn
-        :disabled="!isValidForm || isLoading"
-        color="primary"
-        type="submit"
-        :loading="isLoading"
-      >
-        Verify
-      </v-btn>
-    </v-form>
-    <a @click="resendToken"> Resend Verification Code </a>
-  </div>
+  <v-card max-width="70%" class="mx-auto">
+    <v-row align="center" justify="center" class="py-5">
+      <v-col class="text-center" cols="12" sm="8" md="8">
+        <v-icon class="emoticon primary--text"> mdi-email </v-icon>
+        <h2 class="text-h5 text-md-h2 my-4 primary--text">
+          Verify Your Account
+        </h2>
+        <p>
+          Please enter the verification code <br />sent to your email to verify
+          your account.
+        </p>
+        <v-form @submit.prevent="verify" ref="loginForm" v-model="isValidForm">
+          <!-- Email field with validation -->
+          <v-text-field
+            autofocus
+            name="token"
+            v-model="token"
+            :rules="rules.token"
+            label="Verification Token"
+            outlined
+            required
+          />
+          <!-- Disable the submit button if form is not valid or submitting -->
+          <v-btn
+            :disabled="!isValidForm || isLoading"
+            color="primary"
+            type="submit"
+            large
+            :loading="isLoading"
+          >
+            Verify
+          </v-btn>
+        </v-form>
+        <div class="mt-5">
+          <a @click="resendToken"> Resend Verification Code </a>
+        </div>
+      </v-col>
+    </v-row>
+  </v-card>
 </template>
 
 <script>
@@ -63,3 +78,8 @@ export default {
   },
 };
 </script>
+<style scoped>
+.emoticon {
+  font-size: 7em;
+}
+</style>

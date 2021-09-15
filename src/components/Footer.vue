@@ -41,7 +41,7 @@ export default {
     links: [
       {
         icon: "mdi-linkedin",
-        url: "https://www.linkedin.com/in/eric-joseph-flores-b3a36a153/",
+        url: "https://www.linkedin.com/in/eric-joseph-flores-b3a36a153",
       },
       {
         icon: "mdi-github",

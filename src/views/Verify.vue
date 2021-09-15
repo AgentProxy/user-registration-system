@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <v-sheet color="grey lighten-2 py-15">
     <PageLoader v-if="isLoading" />
     <VerifyForm v-else />
-  </div>
+  </v-sheet>
 </template>
 
 <script>

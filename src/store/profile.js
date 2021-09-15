@@ -18,7 +18,8 @@ const mutations = {
 };
 
 const actions = {
-  deleteAccount({ dispatch }, password) {
+  deleteAccount({ commit, dispatch }, password) {
+    commit("SET_LOADING", true);
     // Will retrieve verification token first which is needed for the
     // delete account endpoint
     axios
@@ -36,7 +37,7 @@ const actions = {
         // Proceed if verification token is available from the response
         if (response.data && response.data.data && response.data.data.token) {
           return axios
-            .post(
+            .delete(
               "/auth/account",
               {
                 headers: {
@@ -57,6 +58,14 @@ const actions = {
         }
       })
       .then(() => {
+        // Display success message
+        dispatch(
+          "alert/displaySuccessAlert",
+          {
+            body: "Your account was successfully deleted.",
+          },
+          { root: true }
+        );
         // Remove user token manually, no need to call logout endpoint
         dispatch("auth/removeUserToken", null, { root: true });
         // Redirect user back to login page
@@ -76,6 +85,9 @@ const actions = {
           },
           { root: true }
         );
+      })
+      .then(() => {
+        commit("SET_LOADING", false);
       });
   },
   getUserDetails({ commit, dispatch }, toRouteName) {

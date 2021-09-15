@@ -1,6 +1,12 @@
 <template>
-  <div>
-    <v-form @submit.prevent="submit" ref="registerForm" v-model="isValidForm">
+  <v-container>
+    <h1 class="text-h5 text-md-h2 mb-10 primary--text">Sign Up</h1>
+    <v-form
+      class="px-5"
+      @submit.prevent="submit"
+      ref="registerForm"
+      v-model="isValidForm"
+    >
       <!-- Email field with validation -->
       <v-text-field
         autofocus
@@ -49,14 +55,20 @@
       <!-- Disable the submit button if form is not valid or submitting -->
       <v-btn
         :disabled="!isValidForm || isSubmittingForm"
+        block
+        x-large
         color="primary"
         type="submit"
         :loading="isSubmittingForm"
       >
         Sign up
       </v-btn>
+      <p class="mt-5 mb-0 grey--text lighten-1">
+        Already have an account?
+        <a @click.prevent="$router.push('/login')"> Log In </a>
+      </p>
     </v-form>
-  </div>
+  </v-container>
 </template>
 
 <script>
