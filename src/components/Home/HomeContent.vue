@@ -12,11 +12,13 @@
       </v-col>
 
       <v-col class="mb-4">
-        <h1 class="display-2 font-weight-bold mb-3">Login Successful!</h1>
+        <h1 class="display-2 font-weight-bold mb-3">Login successful!</h1>
 
         <p class="subheading font-weight-regular">
-          Hi {{ userDetails.full_name || "User" }}, thank you for using the app!
+          Hi {{ (userDetails && userDetails.full_name) || "User" }}, thank you
+          for using the app!
         </p>
+        <DeleteProfileButton />
       </v-col>
     </v-row>
   </v-container>
@@ -24,8 +26,12 @@
 
 <script>
 import { mapState } from "vuex";
+import DeleteProfileButton from "./DeleteProfileButton.vue";
 export default {
   name: "HomeContent",
+  components: {
+    DeleteProfileButton,
+  },
   computed: {
     ...mapState("profile", ["userDetails"]),
   },

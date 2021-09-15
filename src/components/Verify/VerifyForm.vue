@@ -13,80 +13,51 @@
       />
       <!-- Disable the submit button if form is not valid or submitting -->
       <v-btn
-        :disabled="!isValidForm || isVerifying"
+        :disabled="!isValidForm || isLoading"
         color="primary"
         type="submit"
-        :loading="isVerifying"
+        :loading="isLoading"
       >
         Verify
       </v-btn>
     </v-form>
+    <a @click="resendToken"> Resend Verification Code </a>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import { mapState } from "vuex";
 export default {
   name: "VerifyForm",
+  computed: {
+    ...mapState("verify", ["isLoading"]),
+  },
   data() {
     return {
       token: "",
-      isVerifying: false,
+      isResendingToken: false,
       isValidForm: false,
       // Validation rules for input fields in form
       rules: {
-        token: [(v) => !!v || "Verification Token is required"],
+        token: [(v) => !!v || "Please input your Verification Token"],
       },
     };
   },
   methods: {
+    resendToken() {
+      // Only proceed to call the endpoint if it is not in the middle of resending
+      // to prevent double calls
+      if (!this.isResendingToken) {
+        this.isResendingToken = true;
+        this.$store.dispatch("verify/resendToken").then(() => {
+          this.isResendingToken = false;
+        });
+      }
+    },
     verify() {
       // Only proceed to sending data to endpoint if all form fields are valid
-      if (this.isValidForm && !this.isVerifying) {
-        // Toggle loading before sending data to endpoint
-        this.isVerifying = true;
-        axios
-          .post(
-            "/auth/verification/verify",
-            {
-              token: "12345",
-              via: "email",
-            },
-            {
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
-            }
-          )
-          .then((response) => {
-            if (response.data && response.data.email_verified) {
-              // Display success message and redirect to verification page
-              this.$store.dispatch("alert/displaySuccessAlert", {
-                body: "Your email address is now verified.",
-              });
-              // Proceed to success page if email has been verified
-              this.$router.push("/");
-            } else {
-              // Proceed to catch block if response.data is not available
-              throw new Error();
-            }
-          })
-          .catch((err) => {
-            // Display error message
-            this.$store.dispatch("alert/displayErrorAlert", {
-              body:
-                (err.response &&
-                  err.response.data &&
-                  err.response.data.message) ||
-                "Unable to verify token",
-            });
-          })
-          .then(() => {
-            // Set the `isVerifying` to false to stop the submit button from
-            // showing the loading state and being disabled
-            this.isVerifying = false;
-          });
+      if (this.isValidForm) {
+        this.$store.dispatch("verify/verifyUser", this.token);
       }
     },
   },

@@ -54,7 +54,7 @@ const actions = {
       })
       .catch((err) => {
         // Remove any possible token entries
-        dispatch("removeUserToken");
+        dispatch("logout");
         // Display error message
         dispatch(
           "alert/displayErrorAlert",
@@ -90,7 +90,7 @@ const actions = {
         if (response.data && response.data.data) {
           const responseData = response.data.data;
           // Save access token to be used for requests
-          dispatch("saveUserToken", responseData);
+          dispatch("saveUserToken", responseData.access_token);
           // Display success message and redirect to verification page
           dispatch(
             "alert/displaySuccessAlert",
@@ -142,6 +142,8 @@ const actions = {
           router.push("/login");
         })
         .catch((err) => {
+          // Clear and remove user token from header
+          dispatch("removeUserToken");
           // Display error message
           dispatch(
             "alert/displayErrorAlert",
@@ -156,10 +158,14 @@ const actions = {
           );
         });
     } else {
+      // Clear and remove user token from header
+      dispatch("removeUserToken");
+      // Redirect user back to login page
       router.push("/login");
     }
   },
   removeUserToken({ commit }) {
+    // Remove token to state and local storage
     commit("SET_TOKEN", null);
     localStorage.removeItem("token");
     // Remove the Authorization token from the axios default header
@@ -167,6 +173,7 @@ const actions = {
   },
   saveUserToken({ commit }, token) {
     token = "Bearer " + token;
+    // Save token to state and local storage
     commit("SET_TOKEN", token);
     localStorage.setItem("token", token);
     // Save to default header of axios to be used for requests

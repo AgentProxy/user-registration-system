@@ -17,7 +17,7 @@ export default {
   },
 
   computed: {
-    ...mapState("profile", ["isLoading"]),
+    ...mapState("profile", ["isLoading", "userDetails"]),
   },
 };
 </script>

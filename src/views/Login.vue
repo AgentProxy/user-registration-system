@@ -11,5 +11,8 @@ export default {
   components: {
     LoginForm,
   },
+  created() {
+    // this.$store.dispatch("auth/resumeSession");
+  },
 };
 </script>

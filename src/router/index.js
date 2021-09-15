@@ -21,11 +21,17 @@ const routes = [
     path: "/login",
     name: "Login",
     component: Login,
+    meta: {
+      resumeSession: true,
+    },
   },
   {
     path: "/register",
     name: "Register",
     component: Register,
+    meta: {
+      resumeSession: true,
+    },
   },
   {
     path: "/verify",
@@ -49,15 +55,31 @@ router.beforeEach((to, from, next) => {
   // routes that requires authorization and get user details
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (localStorage.getItem("token")) {
-      // Retrieve and save user details if applicable
-      store.dispatch("profile/getUserDetails");
+      // Retrieve and save user details if not yet available
+      // and check if user is verified and allowed to that route
+      if (
+        store.state &&
+        store.state.profile &&
+        !store.state.profile.userDetails
+      ) {
+        store.dispatch("profile/getUserDetails", to.name);
+      } else {
+        // No need to get user details if userDetails was retrieved before and
+        // store hasn't been reset. Check if user is verified and allowed to that route
+        store.dispatch("profile/checkIfVerified", to.name);
+      }
       next();
       return;
     }
     next("/login");
-  } else {
-    next();
+  } else if (to.matched.some((record) => record.meta.resumeSession)) {
+    // If a previous session was detected, redirect user to home page
+    if (localStorage.getItem("token")) {
+      next("/");
+      return;
+    }
   }
+  next();
 });
 
 export default router;
