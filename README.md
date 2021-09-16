@@ -4,10 +4,8 @@ User Registration System created with Vue and Vuetify by Eric Joseph P. Flores f
 
 ### Project setup
 1. Run ```npm install``` to install the dependencies for the frontend vue app
-2. Run ```npm run serve``` to fire up the app (default port is 8080)
+2. Run ```npm run start``` to fire up the app (default port is 8080)
 3. To create build files, run ```npm run build```
-4. Install serve js by running ```sudo npm i -g serve``` to deploy the app locally via the build files
-5. Run ```serve -s dist``` which will run a server deploying the app on port 5000 by default
 
 ### Features Implemented
 1. Login and Saving of user session via localStorage 
