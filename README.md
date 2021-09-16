@@ -1,6 +1,8 @@
 # user-registration-system
 User Registration System created with Vue and Vuetify by Eric Joseph P. Flores for Appetiser Apps
 
+### Heroku URL ### 
+The web app is deployed at https://u-reg.herokuapp.com/
 
 ### Project setup
 1. Run ```npm install``` to install the dependencies for the frontend vue app
